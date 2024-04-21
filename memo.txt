@@ -1,3 +1,5 @@
+-- Cloudflareのやったほうがいい設定
+
 1. 「SSL/TLS→概要」から「フル（厳密）」モードにする。
 
 2. 「Caching→構成→ブラウザキャッシュTTL」から「既存のヘッダーを優先」にする。
@@ -17,6 +19,9 @@
    ドメイン名がexample.comの場合は「ホスト名、次と等しくない、example.com」にする。
    リダイレクト先は「静的、https://example.com/、302」にする。
    ワイルドカード「*」のプロキシ済みAレコードで192.0.2.1をターゲットにする。
+
+-- 新しいマシンを設定
+
 $ curl -fsSL https://get.docker.com/ -o install-docker.sh
 $ sh install-docker.sh
 
@@ -43,6 +48,9 @@ $ rsync -av 167.179.74.85:/var/lib/docker/volumes/litey/_data/ /var/lib/docker/v
 # https://github.com/yuukiwww/litey
 
 # https://github.com/yuukiwww/taiko-web
+
+-- 太鼓ウェブのデータベース
+
 お掃除
 
 $ docker exec -i --user=git forgejo /bin/bash -c "cd /data/git/repositories/yuuki/taiko-mongo-realtime.git && git reflog expire --expire-unreachable=now --all"
