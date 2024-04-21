@@ -124,5 +124,7 @@ addEventListener("load", () => {
           },
         },
       });
+
+      document.querySelector("#loading").remove();
     });
 });
