@@ -51,6 +51,15 @@ async def stats(ref: str):
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
 
+@app.get("/memo")
+async def memo():
+    memo = pathlib.Path("memo.txt").read_text("UTF-8")
+
+    res = fastapi.responses.PlainTextResponse(memo)
+    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
+    res.headers["CDN-Cache-Control"] = "max-age=3600"
+    return res
+
 @app.get("/")
 @app.get("/{ref:path}")
 async def home(ref: str):
