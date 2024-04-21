@@ -43,6 +43,22 @@ async def cloudflare(x_token: typing.Union[str, None] = fastapi.Header(default=N
 async def stats(ref: str):
     path = pathlib.Path("stats") / (ref or "index.html")
 
+    if not path.is_file():
+        return fastapi.responses.PlainTextResponse("ファイルが見つかりません", fastapi.status.HTTP_404_NOT_FOUND)
+
+    res = fastapi.responses.FileResponse(path)
+    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
+    res.headers["CDN-Cache-Control"] = "max-age=3600"
+    return res
+
+@app.get("/")
+@app.get("/{ref:path}")
+async def home(ref: str):
+    path = pathlib.Path("public") / (ref or "index.html")
+
+    if not path.is_file():
+        return fastapi.responses.PlainTextResponse("ファイルが見つかりません", fastapi.status.HTTP_404_NOT_FOUND)
+
     res = fastapi.responses.FileResponse(path)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
