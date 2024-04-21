@@ -12,7 +12,6 @@ app = fastapi.FastAPI()
 @app.get("/stats/{ref:path}")
 async def stats(ref: str):
     path = pathlib.Path("stats") / (ref or "index.html")
-    print(path)
 
     res = fastapi.responses.FileResponse(path)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
