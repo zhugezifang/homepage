@@ -59,10 +59,6 @@ $ docker exec -i taiko-mongo mongoexport --db taiko --collection scores --out /d
 
 コミット＆プッシュ
 
-# git config --global user.name yuuki
-# git config --global user.email "<>"
-# git config --global credential.helper store
-
 $ git add *.json
 $ git commit --author="BOT <bot@example.com>" -m "$(git diff --name-only --cached | paste -s -d ' ') が更新されました"
 $ git push origin main
