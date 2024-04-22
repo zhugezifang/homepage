@@ -102,13 +102,14 @@ async def litey_get():
     return res
 
 @app.post("/litey/post")
-async def litey_post(item: LiteYItem):
+async def litey_post(item: LiteYItem, request: fastapi.Request):
     db = json_read("litey_data/db.json")
 
     db += [{
         "id": str(time.time_ns()),
         "content": item.content,
-        "date": datetime.datetime.now().astimezone(datetime.timezone.utc).isoformat()
+        "date": datetime.datetime.now().astimezone(datetime.timezone.utc).isoformat(),
+        "ip": request.client.host
     }]
 
     json_write("litey_data/db.json", db)

@@ -28,20 +28,27 @@ addEventListener("load", () => {
       json.forEach((item) => {
         const notes = document.querySelector("#notes");
         const note = document.createElement("div");
+        const user = document.createElement("div");
         const content = document.createElement("div");
         const date = document.createElement("code");
         const del = document.createElement("input");
 
         notes.insertAdjacentElement("afterbegin", note);
+        note.insertAdjacentElement("beforeend", user);
         note.insertAdjacentElement("beforeend", content);
         note.insertAdjacentElement("beforeend", date);
         note.insertAdjacentElement("beforeend", del);
 
+        const uid = btoa(item.ip);
+        user.id = "uid";
+        user.textContent = uid;
+
         content.textContent = item.content;
+
         date.textContent = new Date(item.date).toLocaleString();
 
         del.type = "submit";
-        del.value = "この投稿を削除";
+        del.value = "削除";
 
         del.addEventListener("click", () => {
           if (!confirm(`本当にこのメッセージを削除しますか？\n${item.content}`)) {

@@ -1,3 +1,11 @@
 #notes > *:not(:last-child) {
   margin-bottom: 2rem;
 }
+
+#notes > div > *:not(div, :last-child) {
+  margin-right: 4px;
+}
+
+#uid {
+  font-size: 0.5rem;
+}
