@@ -51,13 +51,6 @@ $ rsync -av 167.179.74.85:/var/lib/docker/volumes/litey/_data/ /var/lib/docker/v
 
 -- 太鼓ウェブのデータベース
 
-お掃除
-
-$ docker exec -i --user=git forgejo /bin/bash -c "cd /data/git/repositories/yuuki/taiko-mongo-realtime.git && git reflog expire --expire-unreachable=now --all"
-$ docker exec -i --user=git forgejo /bin/bash -c "cd /data/git/repositories/yuuki/taiko-mongo-realtime.git && git gc --aggressive --prune=now"
-$ git reflog expire --expire-unreachable=now --all
-$ git gc --aggressive --prune=now
-
 エクスポート
 
 $ docker exec -i taiko-mongo mongoexport --db taiko --collection users --out /dev/stdout | sort -n > users.json
