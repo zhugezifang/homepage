@@ -39,7 +39,7 @@ addEventListener("load", () => {
         note.insertAdjacentElement("beforeend", date);
         note.insertAdjacentElement("beforeend", del);
 
-        const uid = btoa(item.ip);
+        const uid = item.ip ? btoa(item.ip) : "-";
         user.id = "uid";
         user.textContent = uid;
 
