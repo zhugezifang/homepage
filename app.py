@@ -35,6 +35,15 @@ def json_write(pos, data):
     path.write_text(text, "UTF-8")
     print(path, "に書き込みました")
 
+def fastapi_serve(dir, ref, index = "index.html"):
+    path = pathlib.Path(dir) / (ref or index)
+    print(path, "をサーブ中")
+
+    if not path.is_file():
+        return fastapi.responses.PlainTextResponse("指定されたファイルが見つかりません", fastapi.status.HTTP_404_NOT_FOUND)
+
+    return fastapi.responses.FileResponse(path)
+
 @app.get("/cloudflare")
 async def cloudflare(x_token: typing.Union[str, None] = fastapi.Header(default=None), zone_id: str = None):
     today = datetime.datetime.now()
@@ -68,12 +77,7 @@ async def cloudflare(x_token: typing.Union[str, None] = fastapi.Header(default=N
 @app.get("/stats/")
 @app.get("/stats/{ref:path}")
 async def stats(ref: str):
-    path = pathlib.Path("stats") / (ref or "index.html")
-
-    if not path.is_file():
-        return fastapi.responses.PlainTextResponse("ファイルが見つかりません", fastapi.status.HTTP_404_NOT_FOUND)
-
-    res = fastapi.responses.FileResponse(path)
+    res = fastapi_serve("stats", ref)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
@@ -126,12 +130,7 @@ async def litey_delete(item: LiteYDeleteItem):
 @app.get("/litey/")
 @app.get("/litey/{ref:path}")
 async def litey(ref: str):
-    path = pathlib.Path("litey") / (ref or "index.html")
-
-    if not path.is_file():
-        return fastapi.responses.PlainTextResponse("ファイルが見つかりません", fastapi.status.HTTP_404_NOT_FOUND)
-
-    res = fastapi.responses.FileResponse(path)
+    res = fastapi_serve("litey", ref)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
@@ -139,12 +138,7 @@ async def litey(ref: str):
 @app.get("/")
 @app.get("/{ref:path}")
 async def home(ref: str):
-    path = pathlib.Path("public") / (ref or "index.html")
-
-    if not path.is_file():
-        return fastapi.responses.PlainTextResponse("ファイルが見つかりません", fastapi.status.HTTP_404_NOT_FOUND)
-
-    res = fastapi.responses.FileResponse(path)
+    res = fastapi_serve("public", ref)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
