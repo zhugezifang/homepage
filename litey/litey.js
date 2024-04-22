@@ -15,9 +15,9 @@ addEventListener("load", () => {
       .then((res) => {
         if (res.ok) {
           message.value = "";
-          alert("成功しました！");
+          alert("投稿に成功しました！");
         } else {
-          alert("失敗しました。");
+          alert("投稿に失敗しました。");
         }
       });
   });
@@ -44,6 +44,10 @@ addEventListener("load", () => {
         del.value = "この投稿を削除";
 
         del.addEventListener("click", () => {
+          if (!confirm(`本当にこのメッセージを削除しますか？\n${item.content}`)) {
+            return;
+          }
+
           fetch("/litey/delete", {
             method: "POST",
             headers: {
@@ -56,9 +60,9 @@ addEventListener("load", () => {
             .then((res) => {
               if (res.ok) {
                 note.remove();
-                alert("成功しました！");
+                alert("削除に成功しました！");
               } else {
-                alert("失敗しました。");
+                alert("削除に失敗しました。");
               }
             });
         });
