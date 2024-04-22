@@ -44,9 +44,6 @@ $ docker run --detach \
   --env "DEFAULT_EMAIL=0xv75b42326631e@au.com" \
   nginxproxy/acme-companion
 
-$ rsync -av 167.179.74.85:/var/lib/docker/volumes/litey/_data/ /var/lib/docker/volumes/litey/_data/
-# https://github.com/yuukiwww/litey
-
 # https://github.com/yuukiwww/taiko-web
 
 -- 太鼓ウェブのデータベース

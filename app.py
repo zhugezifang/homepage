@@ -2,11 +2,38 @@ import typing
 import datetime
 import json
 import pathlib
+import time
 
 import requests
 import fastapi
+import pydantic
 
 app = fastapi.FastAPI()
+
+class LiteYItem(pydantic.BaseModel):
+    content: str
+
+class LiteYDeleteItem(pydantic.BaseModel):
+    id: str
+
+def json_read(pos):
+    path = pathlib.Path(pos)
+
+    if not path.is_file():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps([]))
+
+    text = path.read_text("UTF-8")
+    print(path, "から読み込みました")
+
+    return json.loads(text)
+
+def json_write(pos, data):
+    path = pathlib.Path(pos)
+    text = json.dumps(data)
+
+    path.write_text(text, "UTF-8")
+    print(path, "に書き込みました")
 
 @app.get("/cloudflare")
 async def cloudflare(x_token: typing.Union[str, None] = fastapi.Header(default=None), zone_id: str = None):
@@ -56,6 +83,55 @@ async def memo():
     memo = pathlib.Path("memo.txt").read_text("UTF-8")
 
     res = fastapi.responses.PlainTextResponse(memo)
+    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
+    res.headers["CDN-Cache-Control"] = "max-age=3600"
+    return res
+
+@app.get("/litey/get")
+async def litey_get():
+    db = json_read("litey_data/db.json")
+
+    res = fastapi.responses.JSONResponse(db)
+    res.headers["Access-Control-Allow-Origin"] = "*"
+    res.headers["Cache-Control"] = "public, max-age=5, s-maxage=5"
+    res.headers["CDN-Cache-Control"] = "max-age=5"
+    return res
+
+@app.post("/litey/post")
+async def litey_post(item: LiteYItem):
+    db = json_read("litey_data/db.json")
+
+    db += [{
+        "id": str(time.time_ns()),
+        "content": item.content,
+        "date": datetime.datetime.now().astimezone(datetime.timezone.utc).isoformat()
+    }]
+
+    json_write("litey_data/db.json", db)
+
+    return fastapi.responses.PlainTextResponse("OK")
+
+@app.post("/litey/delete")
+async def litey_delete(item: LiteYDeleteItem):
+    db = json_read("litey_data/db.json")
+
+    for i, x in enumerate(db):
+        if x["id"] == item.id:
+            del db[i]
+
+    json_write("litey_data/db.json", db)
+
+    return fastapi.responses.PlainTextResponse("OK")
+
+@app.get("/litey/")
+@app.get("/litey/{ref:path}")
+async def litey(ref: str):
+    path = pathlib.Path("litey") / (ref or "index.html")
+
+    if not path.is_file():
+        return fastapi.responses.PlainTextResponse("ファイルが見つかりません", fastapi.status.HTTP_404_NOT_FOUND)
+
+    res = fastapi.responses.FileResponse(path)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
