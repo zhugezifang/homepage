@@ -76,7 +76,7 @@ async def cloudflare(x_token: typing.Union[str, None] = fastapi.Header(default=N
 
 @app.get("/stats/")
 @app.get("/stats/{ref:path}")
-async def stats(ref: str):
+async def stats(ref: str = None):
     res = fastapi_serve("stats", ref)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
@@ -130,7 +130,7 @@ async def litey_delete(item: LiteYDeleteItem):
 
 @app.get("/litey/")
 @app.get("/litey/{ref:path}")
-async def litey(ref: str):
+async def litey(ref: str = None):
     res = fastapi_serve("litey", ref)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
@@ -138,7 +138,7 @@ async def litey(ref: str):
 
 @app.get("/")
 @app.get("/{ref:path}")
-async def home(ref: str):
+async def home(ref: str = None):
     res = fastapi_serve("public", ref)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
