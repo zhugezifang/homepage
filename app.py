@@ -113,7 +113,7 @@ def get_cloudflare_analytics(token: str, zone_id: str, hours: int = 72) -> bytes
     return img.getvalue()
 
 @app.get("/cloudflare")
-async def cloudflare(x_token: typing.Union[str, None] = fastapi.Header(default=None), zone_id: str = None):
+async def cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
     today = datetime.datetime.now()
     last_month = today - datetime.timedelta(days=30)
 
@@ -143,11 +143,11 @@ async def cloudflare(x_token: typing.Union[str, None] = fastapi.Header(default=N
     return res
 
 @app.get("/cloudflare2")
-async def cloudflare2(token: str = None, zone_id: str = None):
+async def cloudflare2(token: str, zone_id: str):
     res = fastapi.responses.Response(get_cloudflare_analytics(token, zone_id), media_type="image/png")
     res.headers["Access-Control-Allow-Origin"] = "*"
-    res.headers["Cache-Control"] = "public, max-age=600, s-maxage=600"
-    res.headers["CDN-Cache-Control"] = "max-age=600"
+    res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
+    res.headers["CDN-Cache-Control"] = "max-age=60"
     return res
 
 @app.get("/stats/")
