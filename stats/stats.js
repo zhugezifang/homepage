@@ -49,7 +49,7 @@ addEventListener("load", () => {
       const endedAt = Math.max(...results.map((r) => r.json["data"]["viewer"]["zones"][0]["httpRequests1dGroups"].map((g) => new Date(g["dimensions"]["date"]).getTime())).flat());
       const range = Array.from({ length: scale }, (_, k) => new Date(endedAt - k * 24 * 60 * 60 * 1000));
 
-      const ctxUsers = document.getElementById("users").getContext("2d");
+      const ctxUsers = document.querySelector("#users").getContext("2d");
 
       new Chart(ctxUsers, {
         data: {
@@ -87,7 +87,7 @@ addEventListener("load", () => {
         },
       });
 
-      const ctxBytes = document.getElementById("bytes").getContext("2d");
+      const ctxBytes = document.querySelector("#bytes").getContext("2d");
 
       new Chart(ctxBytes, {
         data: {
@@ -110,6 +110,44 @@ addEventListener("load", () => {
             title: {
               display: true,
               text: "過去30日の送受信データ量(GB)の推移",
+            },
+            legend: {
+              labels: {
+                usePointStyle: true,
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+
+      const ctxCachedBytes = document.querySelector("#cached-bytes").getContext("2d");
+
+      new Chart(ctxCachedBytes, {
+        data: {
+          labels: range.map((d) => d.toISOString().slice(0, 10)).reverse(),
+          datasets: results.map((r) => {
+            return {
+              type: "line",
+              label: r.domain,
+              data: range.map((d) => r.json["data"]["viewer"]["zones"][0]["httpRequests1dGroups"].find((g) => g["dimensions"]["date"] === d.toISOString().slice(0, 10))?.["sum"]?.["cachedBytes"] / 1000 ** 3 ?? null).reverse(),
+              borderColor: r.fg,
+              borderWidth: 1,
+              fill: "origin",
+              backgroundColor: r.bg,
+              pointStyle: "star",
+            };
+          }),
+        },
+        options: {
+          plugins: {
+            title: {
+              display: true,
+              text: "過去30日のキャッシュ済み送受信データ量(GB)の推移",
             },
             legend: {
               labels: {
