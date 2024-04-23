@@ -103,7 +103,7 @@ def get_cloudflare_analytics(token: str, zone_id: str, hours: int = 72) -> bytes
     axs[1].set_title("Bytes")
     axs[1].fill_between(x2, y2, color="silver", alpha=0.1)
     axs[1].plot(x2, y2, marker="*", color="silver")
-    axs[1].fill_between(x2, y2, color="orange", alpha=0.1)
+    axs[1].fill_between(x3, y3, color="orange", alpha=0.1)
     axs[1].plot(x3, y3, marker="*", color="orange")
     axs[1].set_ylim(ymin=0)
 
