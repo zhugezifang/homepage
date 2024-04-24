@@ -212,6 +212,14 @@ async def litey(ref: str = None):
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
 
+@app.get("/stats-realtime/")
+@app.get("/stats-realtime/{ref:path}")
+async def stats_realtime(ref: str = None):
+    res = fastapi_serve("stats-realtime", ref)
+    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
+    res.headers["CDN-Cache-Control"] = "max-age=3600"
+    return res
+
 @app.get("/")
 @app.get("/{ref:path}")
 async def home(ref: str = None):
