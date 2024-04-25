@@ -43,7 +43,8 @@ addEventListener("load", () => {
         user.id = "uid";
         user.textContent = uid;
 
-        content.textContent = item.content;
+        content.innerHTML = item.content
+          .replace(/(https?:\/\/[^\s]+)/, "<img src=\"$1\"></img><a href=\"$1\">$1</a>");
 
         date.textContent = new Date(item.date).toLocaleString();
 
