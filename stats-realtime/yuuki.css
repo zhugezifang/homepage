@@ -18,6 +18,6 @@ body * {
   white-space: pre-line;
 }
 
-body > *:not(:last-child) {
+body > :not(:last-child) {
   margin-bottom: 2rem;
 }
