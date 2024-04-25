@@ -1,15 +1,15 @@
-#notes > *:not(:last-child) {
+#notes > div:not(:last-child) {
   margin-bottom: 2rem;
 }
 
-#notes > div > *:not(div, :last-child) {
-  margin-right: 4px;
+#notes > div > :nth-child(1) {
+  font-size: 0.5rem;
 }
 
-#notes > div > div img, audio, video {
+#notes > div > :nth-child(3) img, audio, video {
   max-width: 100%;
 }
 
-#uid {
-  font-size: 0.5rem;
+#notes > div > :nth-child(n+4):nth-child(-n+4) {
+  margin-right: 4px;
 }
