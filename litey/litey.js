@@ -51,23 +51,41 @@ addEventListener("load", () => {
           .forEach((link) => {
             const proxyLink = `/image-proxy?url=${encodeURIComponent(link)}`;
 
-            const v = document.createElement("video");
-            v.src = proxyLink;
-            v.controls = true;
-            v.loop = true;
-            attachments.insertAdjacentElement("beforeend", v);
-            v.addEventListener("error", () => {              
-              const i = document.createElement("img");
-              i.src = proxyLink;
-              v.remove();
-              attachments.insertAdjacentElement("beforeend", i);
-              i.addEventListener("error", () => {
-                const a = document.createElement("a");
-                a.href = link;
-                a.textContent = link;
-                i.remove();
-                attachments.insertAdjacentElement("beforeend", a);
-              })
+            const img = document.createElement("img");
+            img.src = proxyLink;
+
+            attachments.insertAdjacentElement("beforeend", img);
+
+            img.addEventListener("error", () => {
+              const audio = document.createElement("audio");
+              audio.src = proxyLink;
+              audio.controls = true;
+              audio.loop = true;
+
+              img.remove();
+
+              attachments.insertAdjacentElement("beforeend", audio);
+
+              audio.addEventListener("error", () => {
+                const video = document.createElement("video");
+                video.src = proxyLink;
+                video.controls = true;
+                video.loop = true;
+
+                audio.remove();
+
+                attachments.insertAdjacentElement("beforeend", video);
+
+                video.addEventListener("error", () => {
+                  const a = document.createElement("a");
+                  a.href = link;
+                  a.textContent = link;
+
+                  video.remove();
+
+                  attachments.insertAdjacentElement("beforeend", a);
+                });
+              });
             });
           });
 
