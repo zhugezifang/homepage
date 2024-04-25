@@ -32,7 +32,7 @@ addEventListener("load", () => {
   const message = document.querySelector("#message")
 
   submit.addEventListener("click", () => {
-    fetch("/litey/post", {
+    fetch("/api/litey/post", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,7 +51,7 @@ addEventListener("load", () => {
       });
   });
 
-  fetch("/litey/get")
+  fetch("/api/litey/get")
     .then((res) => res.json())
     .then((json) => {
       json.forEach((item) => {
@@ -78,7 +78,7 @@ addEventListener("load", () => {
 
         (item.content.match(/https?:\/\/[^\s]+/g) ?? [])
           .forEach((link) => {
-            const proxyLink = `/image-proxy?url=${encodeURIComponent(link)}`;
+            const proxyLink = `/api/image-proxy?url=${encodeURIComponent(link)}`;
 
             fetch(proxyLink)
               .then((res) => {
@@ -100,7 +100,7 @@ addEventListener("load", () => {
             return;
           }
 
-          fetch("/litey/delete", {
+          fetch("/api/litey/delete", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

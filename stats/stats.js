@@ -28,7 +28,7 @@ const websites = [
 ];
 
 async function worker(item) {
-  const res = await fetch(`/cloudflare?zone_id=${encodeURIComponent(item.zoneId)}`, {
+  const res = await fetch(`/api/cloudflare?zone_id=${encodeURIComponent(item.zoneId)}`, {
     headers: {
       "X-Token": token,
     },

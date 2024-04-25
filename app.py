@@ -112,8 +112,8 @@ def get_cloudflare_analytics(token: str, zone_id: str, hours: int = 72) -> bytes
     img.seek(0)
     return img.getvalue()
 
-@app.get("/cloudflare")
-async def cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
+@app.get("/api/cloudflare")
+async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
     today = datetime.datetime.now()
     last_month = today - datetime.timedelta(days=30)
 
@@ -142,24 +142,16 @@ async def cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.He
     res.headers["CDN-Cache-Control"] = "max-age=60"
     return res
 
-@app.get("/cloudflare2")
-async def cloudflare2(token: str, zone_id: str):
+@app.get("/api/cloudflare2")
+async def api_cloudflare2(token: str, zone_id: str):
     res = fastapi.responses.Response(get_cloudflare_analytics(token, zone_id), media_type="image/png")
     res.headers["Access-Control-Allow-Origin"] = "*"
     res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
     res.headers["CDN-Cache-Control"] = "max-age=60"
     return res
 
-@app.get("/stats/")
-@app.get("/stats/{ref:path}")
-async def stats(ref: str = None):
-    res = fastapi_serve("stats", ref)
-    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
-    res.headers["CDN-Cache-Control"] = "max-age=3600"
-    return res
-
-@app.get("/memo")
-async def memo():
+@app.get("/api/memo")
+async def api_memo():
     memo = pathlib.Path("memo.txt").read_text("UTF-8")
 
     res = fastapi.responses.PlainTextResponse(memo)
@@ -167,8 +159,8 @@ async def memo():
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
 
-@app.get("/litey/get")
-async def litey_get():
+@app.get("/api/litey/get")
+async def api_litey_get():
     db = json_read("litey_data/db.json")
 
     res = fastapi.responses.JSONResponse(db)
@@ -177,8 +169,8 @@ async def litey_get():
     res.headers["CDN-Cache-Control"] = "max-age=5"
     return res
 
-@app.post("/litey/post")
-async def litey_post(item: LiteYItem, request: fastapi.Request):
+@app.post("/api/litey/post")
+async def api_litey_post(item: LiteYItem, request: fastapi.Request):
     db = json_read("litey_data/db.json")
 
     db += [{
@@ -192,8 +184,8 @@ async def litey_post(item: LiteYItem, request: fastapi.Request):
 
     return fastapi.responses.PlainTextResponse("OK")
 
-@app.post("/litey/delete")
-async def litey_delete(item: LiteYDeleteItem):
+@app.post("/api/litey/delete")
+async def api_litey_delete(item: LiteYDeleteItem):
     db = json_read("litey_data/db.json")
 
     for i, x in enumerate(db):
@@ -203,6 +195,27 @@ async def litey_delete(item: LiteYDeleteItem):
     json_write("litey_data/db.json", db)
 
     return fastapi.responses.PlainTextResponse("OK")
+
+@app.get("/api/image-proxy")
+async def api_image_proxy(url: str):
+    result = requests.get(url, timeout=5)
+
+    content = result.content
+    media_type = result.headers.get("Content-Type")
+
+    res = fastapi.responses.Response(content, media_type=media_type)
+    res.headers["Access-Control-Allow-Origin"] = "*"
+    res.headers["Cache-Control"] = "public, max-age=86400, s-maxage=86400"
+    res.headers["CDN-Cache-Control"] = "max-age=86400"
+    return res
+
+@app.get("/stats/")
+@app.get("/stats/{ref:path}")
+async def stats(ref: str = None):
+    res = fastapi_serve("stats", ref)
+    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
+    res.headers["CDN-Cache-Control"] = "max-age=3600"
+    return res
 
 @app.get("/litey/")
 @app.get("/litey/{ref:path}")
@@ -218,19 +231,6 @@ async def stats_realtime(ref: str = None):
     res = fastapi_serve("stats-realtime", ref)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
-    return res
-
-@app.get("/image-proxy")
-async def image_proxy(url: str):
-    result = requests.get(url, timeout=5)
-
-    content = result.content
-    media_type = result.headers.get("Content-Type")
-
-    res = fastapi.responses.Response(content, media_type=media_type)
-    res.headers["Access-Control-Allow-Origin"] = "*"
-    res.headers["Cache-Control"] = "public, max-age=86400, s-maxage=86400"
-    res.headers["CDN-Cache-Control"] = "max-age=86400"
     return res
 
 @app.get("/")
