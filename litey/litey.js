@@ -30,14 +30,14 @@ addEventListener("load", () => {
         const note = document.createElement("div");
         const user = document.createElement("div");
         const content = document.createElement("div");
-        const attrs = document.createElement("div");
+        const attachments = document.createElement("div");
         const date = document.createElement("code");
         const del = document.createElement("input");
 
         notes.insertAdjacentElement("afterbegin", note);
         note.insertAdjacentElement("beforeend", user);
         note.insertAdjacentElement("beforeend", content);
-        note.insertAdjacentElement("beforeend", attrs);
+        note.insertAdjacentElement("beforeend", attachments);
         note.insertAdjacentElement("beforeend", date);
         note.insertAdjacentElement("beforeend", del);
 
@@ -55,18 +55,18 @@ addEventListener("load", () => {
             v.src = proxyLink;
             v.controls = true;
             v.loop = true;
-            attrs.insertAdjacentElement("beforeend", v);
+            attachments.insertAdjacentElement("beforeend", v);
             v.addEventListener("error", () => {              
               const i = document.createElement("img");
               i.src = proxyLink;
               v.remove();
-              attrs.insertAdjacentElement("beforeend", i);
+              attachments.insertAdjacentElement("beforeend", i);
               i.addEventListener("error", () => {
                 const a = document.createElement("a");
                 a.href = link;
                 a.textContent = link;
                 i.remove();
-                attrs.insertAdjacentElement("beforeend", a);
+                attachments.insertAdjacentElement("beforeend", a);
               })
             });
           });
