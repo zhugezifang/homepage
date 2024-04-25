@@ -50,7 +50,7 @@ addEventListener("load", () => {
         (item.content.match(/https?:\/\/[^\s]+/g) ?? [])
           .forEach((link) => {
             const img = document.createElement("img");
-            img.src = link;
+            img.src = `/image-proxy?url=${encodeURIComponent(link)}`;
 
             images.insertAdjacentElement("beforeend", img);
 

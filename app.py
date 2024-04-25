@@ -220,6 +220,19 @@ async def stats_realtime(ref: str = None):
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
 
+@app.get("/image-proxy")
+async def image_proxy(url: str):
+    result = requests.get(url)
+
+    content = result.content
+    media_type = result.headers.get("Content-Type")
+
+    res = fastapi.responses.Response(content, media_type=media_type)
+    res.headers["Access-Control-Allow-Origin"] = "*"
+    res.headers["Cache-Control"] = "public, max-age=86400, s-maxage=86400"
+    res.headers["CDN-Cache-Control"] = "max-age=86400"
+    return res
+
 @app.get("/")
 @app.get("/{ref:path}")
 async def home(ref: str = None):
