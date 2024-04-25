@@ -30,12 +30,14 @@ addEventListener("load", () => {
         const note = document.createElement("div");
         const user = document.createElement("div");
         const content = document.createElement("div");
+        const images = document.createElement("div");
         const date = document.createElement("code");
         const del = document.createElement("input");
 
         notes.insertAdjacentElement("afterbegin", note);
         note.insertAdjacentElement("beforeend", user);
         note.insertAdjacentElement("beforeend", content);
+        note.insertAdjacentElement("beforeend", images);
         note.insertAdjacentElement("beforeend", date);
         note.insertAdjacentElement("beforeend", del);
 
@@ -43,8 +45,25 @@ addEventListener("load", () => {
         user.id = "uid";
         user.textContent = uid;
 
-        content.innerHTML = item.content
-          .replace(/(https?:\/\/[^\s]+)/, "<img src=\"$1\"></img><a href=\"$1\">$1</a>");
+        content.textContent = item.content;
+
+        (item.content.match(/https?:\/\/[^\s]+/g) ?? [])
+          .forEach((link) => {
+            const img = document.createElement("img");
+            img.src = link;
+
+            images.insertAdjacentElement("beforeend", img);
+
+            img.addEventListener("error", () => {
+              const a = document.createElement("a");
+              a.href = link;
+              a.textContent = link;
+
+              img.remove();
+
+              images.insertAdjacentElement("beforeend", a);
+            });
+          });
 
         date.textContent = new Date(item.date).toLocaleString();
 
