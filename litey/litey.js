@@ -30,14 +30,14 @@ addEventListener("load", () => {
         const note = document.createElement("div");
         const user = document.createElement("div");
         const content = document.createElement("div");
-        const images = document.createElement("div");
+        const attrs = document.createElement("div");
         const date = document.createElement("code");
         const del = document.createElement("input");
 
         notes.insertAdjacentElement("afterbegin", note);
         note.insertAdjacentElement("beforeend", user);
         note.insertAdjacentElement("beforeend", content);
-        note.insertAdjacentElement("beforeend", images);
+        note.insertAdjacentElement("beforeend", attrs);
         note.insertAdjacentElement("beforeend", date);
         note.insertAdjacentElement("beforeend", del);
 
@@ -49,19 +49,25 @@ addEventListener("load", () => {
 
         (item.content.match(/https?:\/\/[^\s]+/g) ?? [])
           .forEach((link) => {
-            const img = document.createElement("img");
-            img.src = `/image-proxy?url=${encodeURIComponent(link)}`;
+            const proxyLink = `/image-proxy?url=${encodeURIComponent(link)}`;
 
-            images.insertAdjacentElement("beforeend", img);
-
-            img.addEventListener("error", () => {
-              const a = document.createElement("a");
-              a.href = link;
-              a.textContent = link;
-
-              img.remove();
-
-              images.insertAdjacentElement("beforeend", a);
+            const v = document.createElement("video");
+            v.src = proxyLink;
+            v.controls = true;
+            v.loop = true;
+            attrs.insertAdjacentElement("beforeend", v);
+            v.addEventListener("error", () => {              
+              const i = document.createElement("img");
+              i.src = proxyLink;
+              v.remove();
+              attrs.insertAdjacentElement("beforeend", i);
+              i.addEventListener("error", () => {
+                const a = document.createElement("a");
+                a.href = link;
+                a.textContent = link;
+                i.remove();
+                attrs.insertAdjacentElement("beforeend", a);
+              })
             });
           });
 

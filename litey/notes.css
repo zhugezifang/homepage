@@ -6,7 +6,7 @@
   margin-right: 4px;
 }
 
-#notes > div > div img {
+#notes > div > div video, img {
   max-width: 100%;
 }
 
