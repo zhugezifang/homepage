@@ -222,7 +222,7 @@ async def stats_realtime(ref: str = None):
 
 @app.get("/image-proxy")
 async def image_proxy(url: str):
-    result = requests.get(url)
+    result = requests.get(url, timeout=5)
 
     content = result.content
     media_type = result.headers.get("Content-Type")

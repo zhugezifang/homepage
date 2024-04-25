@@ -1,3 +1,32 @@
+function createAttachment(link, proxyLink, mediaType) {
+  if (mediaType.startsWith("image/")) {
+    const img = document.createElement("img");
+    img.src = proxyLink;
+    img.loading = "lazy";
+    img.decoding = "async";
+    return img;
+  } else if (mediaType.startsWith("audio/")) {
+    const audio = document.createElement("audio");
+    audio.src = proxyLink;
+    audio.controls = true;
+    audio.loop = true;
+    audio.preload = "none";
+    return audio;
+  } else if (mediaType.startsWith("video/")) {
+    const video = document.createElement("video");
+    video.src = proxyLink;
+    video.controls = true;
+    video.loop = true;
+    video.preload = "none";
+    return video;
+  } else {
+    const a = document.createElement("a");
+    a.href = link;
+    a.textContent = link;
+    return a;
+  }
+}
+
 addEventListener("load", () => {
   const submit = document.querySelector("#message-submit")
   const message = document.querySelector("#message")
@@ -51,42 +80,14 @@ addEventListener("load", () => {
           .forEach((link) => {
             const proxyLink = `/image-proxy?url=${encodeURIComponent(link)}`;
 
-            const img = document.createElement("img");
-            img.src = proxyLink;
-
-            attachments.insertAdjacentElement("beforeend", img);
-
-            img.addEventListener("error", () => {
-              const audio = document.createElement("audio");
-              audio.src = proxyLink;
-              audio.controls = true;
-              audio.loop = true;
-
-              img.remove();
-
-              attachments.insertAdjacentElement("beforeend", audio);
-
-              audio.addEventListener("error", () => {
-                const video = document.createElement("video");
-                video.src = proxyLink;
-                video.controls = true;
-                video.loop = true;
-
-                audio.remove();
-
-                attachments.insertAdjacentElement("beforeend", video);
-
-                video.addEventListener("error", () => {
-                  const a = document.createElement("a");
-                  a.href = link;
-                  a.textContent = link;
-
-                  video.remove();
-
-                  attachments.insertAdjacentElement("beforeend", a);
-                });
+            fetch(proxyLink)
+              .then((res) => {
+                if (res.ok) {
+                  const mediaType = res.headers.get("Content-Type");
+                  const attachment = createAttachment(link, proxyLink, mediaType);
+                  attachments.insertAdjacentElement("beforeend", attachment);
+                }
               });
-            });
           });
 
         date.textContent = new Date(item.date).toLocaleString();
