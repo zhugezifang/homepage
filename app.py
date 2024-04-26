@@ -198,7 +198,9 @@ async def api_litey_delete(item: LiteYDeleteItem):
 
 @app.get("/api/image-proxy")
 async def api_image_proxy(url: str):
-    result = requests.get(url, timeout=5)
+    result = requests.get(url, timeout=5, headers={
+        "User-Agent": pathlib.Path("user-agent.txt").read_text("UTF-8").rstrip("\n")
+    })
 
     content = result.content
     media_type = result.headers.get("Content-Type")
