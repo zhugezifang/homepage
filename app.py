@@ -192,7 +192,7 @@ async def api_litey_delete(item: LiteYDeleteItem):
     return fastapi.responses.PlainTextResponse("OK")
 
 @app.get("/api/litey/image-proxy")
-async def api_image_proxy(url: str):
+async def api_litey_image_proxy(url: str):
     result = requests.get(url, timeout=5, headers={
         "User-Agent": pathlib.Path("user_agent.txt").read_text("UTF-8").rstrip("\n")
     })
