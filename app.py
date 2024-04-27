@@ -112,6 +112,18 @@ def get_cloudflare_analytics(token: str, zone_id: str, hours: int = 72) -> bytes
     img.seek(0)
     return img.getvalue()
 
+@app.middleware("http")
+async def cors_handler(req: fastapi.Request, call_next):
+    res: fastapi.Response = await call_next(req)
+    if req.url.path.startswith("/api/"):
+        res.headers["Access-Control-Allow-Origin"] = "*"
+        res.headers["Access-Control-Allow-Credentials"] = "true"
+        res.headers["Access-Control-Allow-Methods"] = "*"
+        res.headers["Access-Control-Allow-Headers"] = "*"
+        if req.method == "OPTIONS":
+            res.status_code = fastapi.status.HTTP_200_OK
+    return res
+
 @app.get("/api/cloudflare")
 async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
     today = datetime.datetime.now()
@@ -196,7 +208,7 @@ async def api_litey_delete(item: LiteYDeleteItem):
 
     return fastapi.responses.PlainTextResponse("OK")
 
-@app.get("/api/image-proxy")
+@app.get("/api/litey/image-proxy")
 async def api_image_proxy(url: str):
     result = requests.get(url, timeout=5, headers={
         "User-Agent": pathlib.Path("user_agent.txt").read_text("UTF-8").rstrip("\n")

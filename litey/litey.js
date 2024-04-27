@@ -77,7 +77,7 @@ addEventListener("load", () => {
 
         (item.content.match(/https?:\/\/[^\s]+/g) ?? [])
           .forEach((link) => {
-            const proxyLink = `/api/image-proxy?url=${encodeURIComponent(link)}`;
+            const proxyLink = `/api/litey/image-proxy?url=${encodeURIComponent(link)}`;
 
             fetch(proxyLink)
               .then((res) => {
