@@ -54,6 +54,7 @@ def get_cloudflare_domain_name(token: str, zone_id: str) -> str:
             "Authorization": f"Bearer {token}"
         }
     )
+
     return result.json()["result"]["name"]
 
 def get_cloudflare_analytics_as_json(token: str, zone_id: str, query_path: str, limit: int, time_type: str, time_format: str) -> bytes:
@@ -82,9 +83,7 @@ def get_cloudflare_analytics_as_json(token: str, zone_id: str, query_path: str, 
 
     return result.json()
 
-def get_cloudflare_analytics(token: str, zone_id: str) -> bytes:
-    json = get_cloudflare_analytics_as_json(token, zone_id, "analytics_hourly.txt", 72, "hours", "%Y-%m-%dT%H:%M:%SZ")
-
+def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
     first_group = json["data"]["viewer"]["zones"][0]["httpRequests1hGroups"]
 
     y1 = [group["uniq"]["uniques"] for group in first_group]
@@ -97,7 +96,7 @@ def get_cloudflare_analytics(token: str, zone_id: str) -> bytes:
     x3 = range(0 - len(y3) + 1, 0 + 1)
 
     fig = matplotlib.figure.Figure((7, 7))
-    fig.suptitle(get_cloudflare_domain_name(token, zone_id))
+    fig.suptitle(title)
 
     canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(fig)
 
@@ -141,7 +140,11 @@ async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastap
 
 @app.get("/api/cloudflare2")
 async def api_cloudflare2(token: str, zone_id: str):
-    res = fastapi.responses.Response(get_cloudflare_analytics(token, zone_id), media_type="image/png")
+    json = get_cloudflare_analytics_as_json(token, zone_id, "analytics_hourly.txt", 72, "hours", "%Y-%m-%dT%H:%M:%SZ")
+    title = get_cloudflare_domain_name(token, zone_id)
+    png = convert_cloudflare_hourly_json_to_png(json, title)
+
+    res = fastapi.responses.Response(png, media_type="image/png")
     res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
     res.headers["CDN-Cache-Control"] = "max-age=60"
     return res
