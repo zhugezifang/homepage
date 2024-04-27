@@ -1,0 +1,3 @@
+{
+  "postCreateCommand": "export PATH=\"$PATH:$(python -m site --user-site)/bin\""
+}
