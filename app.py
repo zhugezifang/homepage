@@ -56,16 +56,17 @@ def get_cloudflare_domain_name(token: str, zone_id: str) -> str:
     )
     return result.json()["result"]["name"]
 
-def get_cloudflare_analytics(token: str, zone_id: str, hours: int = 72) -> bytes:
-    now = datetime.datetime.now()
-    before = now - datetime.timedelta(hours=hours)
+def get_cloudflare_analytics_as_json(token: str, zone_id: str, query_path: str, limit: int, time_type: str, time_format: str) -> bytes:
+    query = pathlib.Path(query_path).read_text("UTF-8")
 
-    query = pathlib.Path("analytics_hourly.txt").read_text("UTF-8")
+    now = datetime.datetime.now()
+    before = now - datetime.timedelta(**{ time_type: limit })
+
     variables = {
         "zoneTag": zone_id,
-        "from": before.astimezone(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "to": now.astimezone(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "limit": hours
+        "from": before.astimezone(datetime.timezone.utc).strftime(time_format),
+        "to": now.astimezone(datetime.timezone.utc).strftime(time_format),
+        "limit": limit
     }
 
     result = requests.post(
@@ -79,7 +80,12 @@ def get_cloudflare_analytics(token: str, zone_id: str, hours: int = 72) -> bytes
         })
     )
 
-    first_group = result.json()["data"]["viewer"]["zones"][0]["httpRequests1hGroups"]
+    return result.json()
+
+def get_cloudflare_analytics(token: str, zone_id: str) -> bytes:
+    json = get_cloudflare_analytics_as_json(token, zone_id, "analytics_hourly.txt", 72, "hours", "%Y-%m-%dT%H:%M:%SZ")
+
+    first_group = json["data"]["viewer"]["zones"][0]["httpRequests1hGroups"]
 
     y1 = [group["uniq"]["uniques"] for group in first_group]
     x1 = range(0 - len(y1) + 1, 0 + 1)
@@ -126,30 +132,9 @@ async def cors_handler(req: fastapi.Request, call_next):
 
 @app.get("/api/cloudflare")
 async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
-    today = datetime.datetime.now()
-    last_month = today - datetime.timedelta(days=30)
+    json = get_cloudflare_analytics_as_json(x_token, zone_id, "analytics_daily.txt", 30, "days", "%Y-%m-%d")
 
-    query = pathlib.Path("analytics_daily.txt").read_text("UTF-8")
-    variables = {
-        "zoneTag": zone_id,
-        "from": last_month.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d"),
-        "to": today.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d"),
-        "limit": 30
-    }
-    data = {
-        "query": query,
-        "variables": variables
-    }
-    result = requests.post(
-        url="https://api.cloudflare.com/client/v4/graphql",
-        headers={
-            "Authorization": f"Bearer {x_token}"
-        },
-        data=json.dumps(data)
-    )
-
-    res = fastapi.responses.JSONResponse(result.json())
-    res.headers["Access-Control-Allow-Origin"] = "*"
+    res = fastapi.responses.JSONResponse(json)
     res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
     res.headers["CDN-Cache-Control"] = "max-age=60"
     return res
@@ -157,7 +142,6 @@ async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastap
 @app.get("/api/cloudflare2")
 async def api_cloudflare2(token: str, zone_id: str):
     res = fastapi.responses.Response(get_cloudflare_analytics(token, zone_id), media_type="image/png")
-    res.headers["Access-Control-Allow-Origin"] = "*"
     res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
     res.headers["CDN-Cache-Control"] = "max-age=60"
     return res
@@ -176,7 +160,6 @@ async def api_litey_get():
     db = json_read("litey_data/db.json")
 
     res = fastapi.responses.JSONResponse(db)
-    res.headers["Access-Control-Allow-Origin"] = "*"
     res.headers["Cache-Control"] = "public, max-age=5, s-maxage=5"
     res.headers["CDN-Cache-Control"] = "max-age=5"
     return res
@@ -218,7 +201,6 @@ async def api_image_proxy(url: str):
     media_type = result.headers.get("Content-Type")
 
     res = fastapi.responses.Response(content, media_type=media_type)
-    res.headers["Access-Control-Allow-Origin"] = "*"
     res.headers["Cache-Control"] = "public, max-age=86400, s-maxage=86400"
     res.headers["CDN-Cache-Control"] = "max-age=86400"
     return res
