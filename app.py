@@ -16,7 +16,7 @@ import pymongo
 app = fastapi.FastAPI()
 
 mongo = client = pymongo.MongoClient(
-    os.environ.get("MONGO_URI", "mongodb+srv://127.0.0.1:27017/"),
+    os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017/"),
     username=os.environ.get("MONGO_USER"),
     password=os.environ.get("MONGO_PASSWORD")
 )
