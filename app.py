@@ -141,8 +141,8 @@ async def api_test(req: fastapi.Request):
     }
 
     res = fastapi.responses.JSONResponse(json)
-    res.headers["Cache-Control"] = "public, max-age=5, s-maxage=5"
-    res.headers["CDN-Cache-Control"] = "max-age=5"
+    res.headers["Cache-Control"] = "public, max-age=0, s-maxage=0"
+    res.headers["CDN-Cache-Control"] = "max-age=0"
     return res
 
 @app.get("/api/request_headers")
@@ -150,8 +150,8 @@ async def api_request_headers(req: fastapi.Request):
     json = req.headers.items()
 
     res = fastapi.responses.JSONResponse(json)
-    res.headers["Cache-Control"] = "public, max-age=5, s-maxage=5"
-    res.headers["CDN-Cache-Control"] = "max-age=5"
+    res.headers["Cache-Control"] = "public, max-age=0, s-maxage=0"
+    res.headers["CDN-Cache-Control"] = "max-age=0"
     return res
 
 @app.get("/api/cloudflare")
