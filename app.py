@@ -237,13 +237,16 @@ async def api_litey_image_proxy(url: str):
 async def stats(req: fastapi.Request):
     return templates.TemplateResponse(req, "stats.html")
 
-@app.get("/litey/")
-@app.get("/litey/{ref:path}")
-async def litey(ref: str = None):
-    res = fastapi_serve("litey", ref)
-    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
-    res.headers["CDN-Cache-Control"] = "max-age=3600"
-    return res
+@app.get("/litey")
+async def litey(req: fastapi.Request):
+    col = mongo["litey"].notes
+    json = list(col.find({}, { "_id": False }).sort("id", pymongo.ASCENDING))
+
+    context = {
+        "notes": json
+    }
+
+    return templates.TemplateResponse(req, "litey.html", context)
 
 @app.get("/stats-realtime")
 async def stats_realtime(req: fastapi.Request):
