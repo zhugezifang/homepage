@@ -21,7 +21,7 @@
       <div>{{ note.content }}</div>
       <div id="attachments">{{ note.content }}</div>
       <code id="date">{{ note.date }}</code>
-      <input type="submit" value="削除" onclick="noteDelete(&quot;{{ note.content.split("\n") | first }}...&quot;, &quot;{{ note.id | e }}&quot;);">
+      <input type="submit" value="削除" onclick="noteDelete(&quot;{{ note.content.split("\n") | first }}…&quot;, &quot;{{ note.id | e }}&quot;);">
     </div>
     {% endfor %}
   </body>
