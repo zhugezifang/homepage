@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>ゆうきのホームページ</title>
-    <link rel="stylesheet" href="yuuki.css">
-    <script src="test.js"></script>
+    <link rel="stylesheet" href="css/yuuki.css">
   </head>
   <body>
     <p>クラウドフレアのユーザー数や送受信データ量については<a href="/stats/">こちら</a>からご確認いただけます！</p>
-    <p>リアルタイムな統計情報は<a href="/stats-realtime/">こちら</a>でチェックできます！</p>
+    <p>リアルタイムな統計情報は<a href="/stats-realtime">こちら</a>でチェックできます！</p>
     <p>簡単なメモは<a href="/api/memo">こちら</a>です！</p>
     <p>最新情報を入手するための掲示板は<a href="/litey/">こちら</a>です！</p>
-    <p>IPアドレスは <span id="ip">-</span> です！</p>
-    <p>ブラウザは <span id="ua">-</span> をご利用中です！</p>
+    <p>IPアドレスは {{ ip }} です！</p>
+    <p>ブラウザは {{ ua }} をご利用中です！</p>
   </body>
 </html>

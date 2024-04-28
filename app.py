@@ -8,12 +8,15 @@ import os
 
 import requests
 import fastapi
+import fastapi.templating
 import pydantic
 import matplotlib.figure
 import matplotlib.backends.backend_agg
 import pymongo
 
 app = fastapi.FastAPI()
+
+templates = fastapi.templating.Jinja2Templates("templates")
 
 mongo = pymongo.MongoClient(
     os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017/"),
@@ -244,18 +247,22 @@ async def litey(ref: str = None):
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
 
-@app.get("/stats-realtime/")
-@app.get("/stats-realtime/{ref:path}")
-async def stats_realtime(ref: str = None):
-    res = fastapi_serve("stats-realtime", ref)
-    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
-    res.headers["CDN-Cache-Control"] = "max-age=3600"
-    return res
+@app.get("/stats-realtime")
+async def stats_realtime(req: fastapi.Request):
+    return templates.TemplateResponse(name="stats-realtime.html", request=req)
 
 @app.get("/")
+async def home(req: fastapi.Request):
+    context = {
+        "ip": get_ip(req),
+        "ua": req.headers.get("User-Agent")
+    }
+
+    return templates.TemplateResponse(name="home.html", request=req, context=context)
+
 @app.get("/{ref:path}")
-async def home(ref: str = None):
-    res = fastapi_serve("public", ref)
+async def static(ref: str = None):
+    res = fastapi_serve("static", ref)
     res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
     res.headers["CDN-Cache-Control"] = "max-age=3600"
     return res
