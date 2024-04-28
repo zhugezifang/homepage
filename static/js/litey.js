@@ -92,3 +92,10 @@ addEventListener("load", () => {
     });
   });
 });
+
+addEventListener("load", () => {
+  document.querySelectorAll("#date").forEach((date) => {
+    const dateStr = date.textContent;
+    date.textContent = new Date(dateStr).toLocaleString();
+  });
+});
