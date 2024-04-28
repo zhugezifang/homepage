@@ -22,8 +22,14 @@ mongo = client = pymongo.MongoClient(
 )
 
 for db_name in mongo.list_database_names():
-    col = mongo[db_name]
-    print(db_name, col.list_collection_names())
+    print(db_name)
+
+    if db_name == "local":
+        continue
+
+    for col_name in mongo[db_name].list_collection_names():
+        index_info = mongo[db_name][col_name].index_information()
+        print(db_name, col_name, index_info)
 
 class LiteYItem(pydantic.BaseModel):
     content: str
