@@ -1,7 +1,6 @@
 #note {
   all: revert;
   padding: 2rem 0;
-  border-bottom: 3px solid #888;
 }
 
 #note > :nth-child(1) {
