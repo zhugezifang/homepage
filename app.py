@@ -123,7 +123,10 @@ def get_ip(req: fastapi.Request) -> str:
     return req.headers.get("CF-Connecting-IP") or req.client.host
 
 def ip_to_uid(ip: typing.Optional[str]) -> str:
-    return base64.b64encode((ip or "").encode("utf-8")).decode("utf-8")[:11]
+    if not ip:
+        return ""
+
+    return base64.b64encode(ip.encode("utf-8")).decode("utf-8")[:11]
 
 templates.env.filters["ip_to_uid"] = ip_to_uid
 
