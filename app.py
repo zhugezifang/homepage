@@ -249,7 +249,7 @@ async def litey(ref: str = None):
 
 @app.get("/stats-realtime")
 async def stats_realtime(req: fastapi.Request):
-    return templates.TemplateResponse(name="stats-realtime.html", request=req)
+    return templates.TemplateResponse(req, "stats-realtime.html")
 
 @app.get("/")
 async def home(req: fastapi.Request):
@@ -258,7 +258,7 @@ async def home(req: fastapi.Request):
         "ua": req.headers.get("User-Agent")
     }
 
-    return templates.TemplateResponse(name="home.html", request=req, context=context)
+    return templates.TemplateResponse(req, "home.html", context)
 
 @app.get("/{ref:path}")
 async def static(ref: str = None):
