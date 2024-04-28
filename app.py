@@ -9,38 +9,21 @@ import os
 import requests
 import fastapi
 import pydantic
-import contextlib
 import matplotlib.figure
 import matplotlib.backends.backend_agg
 import pymongo
 
-life = {}
+app = fastapi.FastAPI()
 
-@contextlib.asynccontextmanager
-async def lifespan(app: fastapi.FastAPI):
-    life["client"] = pymongo.MongoClient(
-        os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017/"),
-        username=os.environ.get("MONGO_USER"),
-        password=os.environ.get("MONGO_PASSWORD")
-    )
+mongo = client = pymongo.MongoClient(
+    os.environ.get("MONGO_URI", "mongodb://127.0.0.1:27017/"),
+    username=os.environ.get("MONGO_USER"),
+    password=os.environ.get("MONGO_PASSWORD")
+)
 
-    life["client"]["litey"].notes.create_index("id", unique=True)
-
-    for db_name in life["client"].list_database_names():
-        print(db_name)
-
-        if db_name == "local":
-            continue
-
-        for col_name in life["client"][db_name].list_collection_names():
-            index_info = life["client"][db_name][col_name].index_information()
-            print(db_name, col_name, index_info)
-
-    yield
-
-    life["client"] = None
-
-app = fastapi.FastAPI(lifespan=lifespan)
+for db_name in mongo.list_database_names():
+    col = mongo[db_name]
+    print(db_name, col.list_collection_names())
 
 class LiteYItem(pydantic.BaseModel):
     content: str
@@ -126,9 +109,6 @@ def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
     img.seek(0)
     return img.getvalue()
 
-def mongo() -> pymongo.MongoClient:
-    return life["client"]
-
 @app.middleware("http")
 async def cors_handler(req: fastapi.Request, call_next: typing.Callable[[fastapi.Request], typing.Awaitable[fastapi.Response]]):
     res = await call_next(req)
@@ -175,7 +155,7 @@ async def api_memo():
 
 @app.get("/api/litey/get")
 async def api_litey_get():
-    col = mongo()["litey"].notes
+    col = mongo["litey"]["notes"]
     json = list(col.find({}, { "_id": False }).sort("id", pymongo.ASCENDING))
 
     res = fastapi.responses.JSONResponse(json)
@@ -185,7 +165,7 @@ async def api_litey_get():
 
 @app.post("/api/litey/post")
 async def api_litey_post(item: LiteYItem, request: fastapi.Request):
-    col = mongo()["litey"].notes
+    col = mongo["litey"]["notes"]
 
     col.insert_one({
         "id": str(time.time_ns()),
@@ -198,7 +178,7 @@ async def api_litey_post(item: LiteYItem, request: fastapi.Request):
 
 @app.post("/api/litey/delete")
 async def api_litey_delete(item: LiteYDeleteItem):
-    col = mongo()["litey"].notes
+    col = mongo["litey"]["notes"]
 
     col.delete_one({ "id": item.id })
 
