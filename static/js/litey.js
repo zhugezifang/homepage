@@ -73,13 +73,6 @@ function createAttachment(link, proxyLink, mediaType) {
 }
 
 addEventListener("load", () => {
-  document.querySelectorAll("#uid").forEach((uid) => {
-    const uidStr = uid.textContent;
-    uid.textContent = btoa(uidStr).slice(0, 11);
-  });
-});
-
-addEventListener("load", () => {
   document.querySelectorAll("#attachments").forEach((attachments) => {
     const content = attachments.textContent;
     attachments.textContent = undefined;
