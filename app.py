@@ -126,6 +126,9 @@ def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
     img.seek(0)
     return img.getvalue()
 
+def mongo() -> pymongo.MongoClient:
+    return life["client"]
+
 @app.middleware("http")
 async def cors_handler(req: fastapi.Request, call_next: typing.Callable[[fastapi.Request], typing.Awaitable[fastapi.Response]]):
     res = await call_next(req)
@@ -172,7 +175,7 @@ async def api_memo():
 
 @app.get("/api/litey/get")
 async def api_litey_get():
-    col = life["client"]["litey"].notes
+    col = mongo()["litey"].notes
     json = list(col.find({}, { "_id": False }).sort("id", pymongo.ASCENDING))
 
     res = fastapi.responses.JSONResponse(json)
@@ -182,7 +185,7 @@ async def api_litey_get():
 
 @app.post("/api/litey/post")
 async def api_litey_post(item: LiteYItem, request: fastapi.Request):
-    col = life["client"]["litey"].notes
+    col = mongo()["litey"].notes
 
     col.insert_one({
         "id": str(time.time_ns()),
@@ -195,7 +198,7 @@ async def api_litey_post(item: LiteYItem, request: fastapi.Request):
 
 @app.post("/api/litey/delete")
 async def api_litey_delete(item: LiteYDeleteItem):
-    col = life["client"]["litey"].notes
+    col = mongo()["litey"].notes
 
     col.delete_one({ "id": item.id })
 
