@@ -17,7 +17,7 @@
     <input type="submit" value="今すぐ送信！" onclick="notePost();">
     {% for note in notes | reverse %}
     <div id="note">
-      <div>{{ note.ip | ip_to_uid }}</div>
+      <div>{{ note.ip | default("") | ip_to_uid }}</div>
       <div>{{ note.content }}</div>
       <div id="attachments">{{ note.content }}</div>
       <code id="date">{{ note.date }}</code>
