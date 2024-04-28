@@ -135,14 +135,24 @@ async def cors_handler(req: fastapi.Request, call_next: typing.Callable[[fastapi
 
 @app.get("/api/test")
 async def api_test(req: fastapi.Request):
-    return fastapi.responses.JSONResponse({
+    json = {
         "ip": get_ip(req),
         "ua": req.headers.get("User-Agent")
-    })
+    }
+
+    res = fastapi.responses.JSONResponse(json)
+    res.headers["Cache-Control"] = "public, max-age=5, s-maxage=5"
+    res.headers["CDN-Cache-Control"] = "max-age=5"
+    return res
 
 @app.get("/api/request_headers")
 async def api_request_headers(req: fastapi.Request):
-    return fastapi.responses.JSONResponse(req.headers.items())
+    json = req.headers.items()
+
+    res = fastapi.responses.JSONResponse(json)
+    res.headers["Cache-Control"] = "public, max-age=5, s-maxage=5"
+    res.headers["CDN-Cache-Control"] = "max-age=5"
+    return res
 
 @app.get("/api/cloudflare")
 async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
