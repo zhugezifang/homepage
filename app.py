@@ -164,8 +164,8 @@ async def api_cloudflare(token: str, zone_id: str):
     png = convert_cloudflare_json_to_png(json, title, "httpRequests1dGroups")
 
     res = fastapi.responses.Response(png, media_type="image/png")
-    res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
-    res.headers["CDN-Cache-Control"] = "max-age=60"
+    res.headers["Cache-Control"] = "public, max-age=600, s-maxage=600"
+    res.headers["CDN-Cache-Control"] = "max-age=600"
     return res
 
 @app.get("/api/cloudflare2")
@@ -175,8 +175,8 @@ async def api_cloudflare2(token: str, zone_id: str):
     png = convert_cloudflare_json_to_png(json, title, "httpRequests1hGroups")
 
     res = fastapi.responses.Response(png, media_type="image/png")
-    res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
-    res.headers["CDN-Cache-Control"] = "max-age=60"
+    res.headers["Cache-Control"] = "public, max-age=600, s-maxage=600"
+    res.headers["CDN-Cache-Control"] = "max-age=600"
     return res
 
 @app.get("/api/memo")
