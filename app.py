@@ -130,6 +130,15 @@ async def cors_handler(req: fastapi.Request, call_next: typing.Callable[[fastapi
 
     return res
 
+@app.get("/api/request_headers")
+async def api_request_headers(req: fastapi.Request):
+    headers = req.headers.items()
+
+    res = fastapi.responses.JSONResponse(headers)
+    res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
+    res.headers["CDN-Cache-Control"] = "max-age=60"
+    return res
+
 @app.get("/api/cloudflare")
 async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
     json = get_cloudflare_analytics_as_json(x_token, zone_id, "analytics_daily.txt", 30, "days", "%Y-%m-%d")
@@ -170,14 +179,14 @@ async def api_litey_get():
     return res
 
 @app.post("/api/litey/post")
-async def api_litey_post(item: LiteYItem, request: fastapi.Request):
+async def api_litey_post(item: LiteYItem, req: fastapi.Request):
     col = mongo["litey"].notes
 
     col.insert_one({
         "id": str(time.time_ns()),
         "content": item.content,
         "date": datetime.datetime.now().astimezone(datetime.timezone.utc).isoformat(),
-        "ip": request.client.host
+        "ip": req.client.host
     })
 
     return fastapi.responses.PlainTextResponse("OK")
