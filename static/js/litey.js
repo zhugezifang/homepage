@@ -20,8 +20,8 @@ function notePost() {
     });
 }
 
-function noteDelete(content, id) {
-  if (!confirm(`本当にこのメッセージを削除しますか？\n${content}`)) {
+function noteDelete(preview, id) {
+  if (!confirm(`本当にこのメッセージを削除しますか？\n${preview}`)) {
     return;
   }
 
