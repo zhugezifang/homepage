@@ -85,8 +85,8 @@ def get_cloudflare_analytics_as_json(token: str, zone_id: str, query_path: str, 
 
     return result.json()
 
-def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
-    first_group = json["data"]["viewer"]["zones"][0]["httpRequests1hGroups"]
+def convert_cloudflare_json_to_png(json: dict, title: str, group: str) -> bytes:
+    first_group = json["data"]["viewer"]["zones"][0][group]
 
     y1 = [group["uniq"]["uniques"] for group in first_group]
     x1 = range(0 - len(y1) + 1, 0 + 1)
@@ -158,10 +158,12 @@ async def api_request_headers(req: fastapi.Request):
     return res
 
 @app.get("/api/cloudflare")
-async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
-    json = get_cloudflare_analytics_as_json(x_token, zone_id, "analytics_daily.txt", 30, "days", "%Y-%m-%d")
+async def api_cloudflare(token: str, zone_id: str):
+    json = get_cloudflare_analytics_as_json(token, zone_id, "analytics_daily.txt", 30, "days", "%Y-%m-%d")
+    title = get_cloudflare_domain_name(token, zone_id)
+    png = convert_cloudflare_json_to_png(json, title, "httpRequests1dGroups")
 
-    res = fastapi.responses.JSONResponse(json)
+    res = fastapi.responses.Response(png, media_type="image/png")
     res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
     res.headers["CDN-Cache-Control"] = "max-age=60"
     return res
@@ -170,7 +172,7 @@ async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastap
 async def api_cloudflare2(token: str, zone_id: str):
     json = get_cloudflare_analytics_as_json(token, zone_id, "analytics_hourly.txt", 72, "hours", "%Y-%m-%dT%H:%M:%SZ")
     title = get_cloudflare_domain_name(token, zone_id)
-    png = convert_cloudflare_hourly_json_to_png(json, title)
+    png = convert_cloudflare_json_to_png(json, title, "httpRequests1hGroups")
 
     res = fastapi.responses.Response(png, media_type="image/png")
     res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
@@ -231,13 +233,9 @@ async def api_litey_image_proxy(url: str):
     res.headers["CDN-Cache-Control"] = "max-age=86400"
     return res
 
-@app.get("/stats/")
-@app.get("/stats/{ref:path}")
-async def stats(ref: str = None):
-    res = fastapi_serve("stats", ref)
-    res.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
-    res.headers["CDN-Cache-Control"] = "max-age=3600"
-    return res
+@app.get("/stats")
+async def stats(req: fastapi.Request):
+    return templates.TemplateResponse(req, "stats.html")
 
 @app.get("/litey/")
 @app.get("/litey/{ref:path}")
