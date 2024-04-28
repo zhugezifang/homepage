@@ -3,3 +3,5 @@ uvicorn==0.29.0
 requests==2.31.0
 matplotlib==3.8.4
 pymongo==4.7.0
+Jinja2==3.1.3
+
