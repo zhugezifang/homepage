@@ -70,7 +70,7 @@ addEventListener("load", () => {
         note.insertAdjacentElement("beforeend", date);
         note.insertAdjacentElement("beforeend", del);
 
-        const uid = item.ip ? btoa(item.ip) : "-";
+        const uid = item.ip ? btoa([...new Set(json.map((x) => x.ip))].indexOf(item.ip).toString(36)) : "-";
         user.textContent = uid;
 
         content.textContent = item.content;
