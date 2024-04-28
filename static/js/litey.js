@@ -20,27 +20,35 @@ function notePost() {
     });
 }
 
-function noteDelete(preview, id) {
-  if (!confirm(`本当にこのメッセージを削除しますか？\n${preview}`)) {
-    return;
-  }
-
-  fetch("/api/litey/delete", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id,
-    }),
-  })
+function noteDelete(id) {
+  fetch(`/api/litey/get?id=${encodeURIComponent(id)}`)
     .then((res) => {
       if (res.ok) {
-        alert("削除に成功しました！");
-      } else {
-        alert("削除に失敗しました。");
+        res.json()
+          .then((json) => {
+            if (!confirm(`本当にこのメッセージを削除しますか？\n${json.content}`)) {
+              return;
+            }
+
+            fetch("/api/litey/delete", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                id,
+              }),
+            })
+              .then((res2) => {
+                if (res2.ok) {
+                  alert("削除に成功しました！");
+                } else {
+                  alert("削除に失敗しました。");
+                }
+              });
+          });
       }
-    });
+    })
 }
 
 function createAttachment(link, proxyLink, mediaType) {

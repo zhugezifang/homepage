@@ -198,9 +198,13 @@ async def api_memo():
     return res
 
 @app.get("/api/litey/get")
-async def api_litey_get():
+async def api_litey_get(id: str = None):
     col = mongo["litey"].notes
-    json = list(col.find({}, { "_id": False }).sort("id", pymongo.ASCENDING))
+
+    if not id:
+        json = list(col.find({}, { "_id": False }).sort("id", pymongo.ASCENDING))
+    else:
+        json = col.find_one({ "id": id }, { "_id": False })
 
     res = fastapi.responses.JSONResponse(json)
     res.headers["Cache-Control"] = "public, max-age=5, s-maxage=5"
