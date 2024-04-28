@@ -98,8 +98,6 @@ def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
     fig = matplotlib.figure.Figure((7, 7))
     fig.suptitle(title)
 
-    canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(fig)
-
     axs = fig.subplots(2, 1)
     axs[0].set_title("Users")
     axs[0].fill_between(x1, y1, color="#87ceeb", alpha=0.1)
@@ -113,6 +111,7 @@ def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
     axs[1].set_ylim(ymin=0)
 
     img = io.BytesIO()
+    canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(fig)
     canvas.print_png(img)
     img.seek(0)
     return img.getvalue()
@@ -120,13 +119,16 @@ def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
 @app.middleware("http")
 async def cors_handler(req: fastapi.Request, call_next):
     res: fastapi.Response = await call_next(req)
+
     if req.url.path.startswith("/api/"):
         res.headers["Access-Control-Allow-Origin"] = "*"
         res.headers["Access-Control-Allow-Credentials"] = "true"
         res.headers["Access-Control-Allow-Methods"] = "*"
         res.headers["Access-Control-Allow-Headers"] = "*"
+
         if req.method == "OPTIONS":
             res.status_code = fastapi.status.HTTP_200_OK
+
     return res
 
 @app.get("/api/cloudflare")
