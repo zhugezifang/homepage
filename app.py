@@ -4,39 +4,32 @@ import json
 import pathlib
 import time
 import io
+import os
 
 import requests
 import fastapi
 import pydantic
 import matplotlib.figure
 import matplotlib.backends.backend_agg
+import pymongo
 
 app = fastapi.FastAPI()
+
+mongo = client = pymongo.MongoClient(
+    os.environ.get("MONGO_URI", "mongodb+srv://127.0.0.1:27017/"),
+    username=os.environ.get("MONGO_USER"),
+    password=os.environ.get("MONGO_PASSWORD")
+)
+
+for db_name in mongo.list_database_names():
+    col = mongo[db_name]
+    print(db_name, col.list_collection_names())
 
 class LiteYItem(pydantic.BaseModel):
     content: str
 
 class LiteYDeleteItem(pydantic.BaseModel):
     id: str
-
-def json_read(pos: str) -> dict:
-    path = pathlib.Path(pos)
-
-    if not path.is_file():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps([]))
-
-    text = path.read_text("UTF-8")
-    print(path, "から読み込みました")
-
-    return json.loads(text)
-
-def json_write(pos: str, data: dict):
-    path = pathlib.Path(pos)
-    text = json.dumps(data)
-
-    path.write_text(text, "UTF-8")
-    print(path, "に書き込みました")
 
 def fastapi_serve(dir: str, ref: str, index: str = "index.html") -> fastapi.Response:
     path = pathlib.Path(dir) / (ref or index)
@@ -117,8 +110,8 @@ def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
     return img.getvalue()
 
 @app.middleware("http")
-async def cors_handler(req: fastapi.Request, call_next):
-    res: fastapi.Response = await call_next(req)
+async def cors_handler(req: fastapi.Request, call_next: typing.Callable[[fastapi.Request], typing.Awaitable[fastapi.Response]]):
+    res = await call_next(req)
 
     if req.url.path.startswith("/api/"):
         res.headers["Access-Control-Allow-Origin"] = "*"
@@ -162,37 +155,32 @@ async def api_memo():
 
 @app.get("/api/litey/get")
 async def api_litey_get():
-    db = json_read("litey_data/db.json")
+    col = mongo["litey"]["notes"]
+    json = list(col.find({}, { "_id": False }).sort("id", pymongo.ASCENDING))
 
-    res = fastapi.responses.JSONResponse(db)
+    res = fastapi.responses.JSONResponse(json)
     res.headers["Cache-Control"] = "public, max-age=5, s-maxage=5"
     res.headers["CDN-Cache-Control"] = "max-age=5"
     return res
 
 @app.post("/api/litey/post")
 async def api_litey_post(item: LiteYItem, request: fastapi.Request):
-    db = json_read("litey_data/db.json")
+    col = mongo["litey"]["notes"]
 
-    db += [{
+    col.insert_one({
         "id": str(time.time_ns()),
         "content": item.content,
         "date": datetime.datetime.now().astimezone(datetime.timezone.utc).isoformat(),
         "ip": request.client.host
-    }]
-
-    json_write("litey_data/db.json", db)
+    })
 
     return fastapi.responses.PlainTextResponse("OK")
 
 @app.post("/api/litey/delete")
 async def api_litey_delete(item: LiteYDeleteItem):
-    db = json_read("litey_data/db.json")
+    col = mongo["litey"]["notes"]
 
-    for i, x in enumerate(db):
-        if x["id"] == item.id:
-            del db[i]
-
-    json_write("litey_data/db.json", db)
+    col.delete_one({ "id": item.id })
 
     return fastapi.responses.PlainTextResponse("OK")
 
