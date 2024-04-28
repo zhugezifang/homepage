@@ -161,7 +161,7 @@ async def api_memo():
 
 @app.get("/api/litey/get")
 async def api_litey_get():
-    col = mongo["litey"]["notes"]
+    col = mongo["litey"].notes
     json = list(col.find({}, { "_id": False }).sort("id", pymongo.ASCENDING))
 
     res = fastapi.responses.JSONResponse(json)
@@ -171,7 +171,7 @@ async def api_litey_get():
 
 @app.post("/api/litey/post")
 async def api_litey_post(item: LiteYItem, request: fastapi.Request):
-    col = mongo["litey"]["notes"]
+    col = mongo["litey"].notes
 
     col.insert_one({
         "id": str(time.time_ns()),
@@ -184,7 +184,7 @@ async def api_litey_post(item: LiteYItem, request: fastapi.Request):
 
 @app.post("/api/litey/delete")
 async def api_litey_delete(item: LiteYDeleteItem):
-    col = mongo["litey"]["notes"]
+    col = mongo["litey"].notes
 
     col.delete_one({ "id": item.id })
 
