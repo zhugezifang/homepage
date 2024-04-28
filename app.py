@@ -115,6 +115,9 @@ def convert_cloudflare_hourly_json_to_png(json: dict, title: str) -> bytes:
     img.seek(0)
     return img.getvalue()
 
+def get_ip(req: fastapi.Request) -> str:
+    return req.headers.get("CF-Connecting-IP") or req.client.host
+
 @app.middleware("http")
 async def cors_handler(req: fastapi.Request, call_next: typing.Callable[[fastapi.Request], typing.Awaitable[fastapi.Response]]):
     res = await call_next(req)
@@ -130,14 +133,16 @@ async def cors_handler(req: fastapi.Request, call_next: typing.Callable[[fastapi
 
     return res
 
+@app.get("/api/test")
+async def api_test(req: fastapi.Request):
+    return fastapi.responses.JSONResponse({
+        "ip": get_ip(req),
+        "ua": req.headers.get("User-Agent")
+    })
+
 @app.get("/api/request_headers")
 async def api_request_headers(req: fastapi.Request):
-    headers = req.headers.items()
-
-    res = fastapi.responses.JSONResponse(headers)
-    res.headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
-    res.headers["CDN-Cache-Control"] = "max-age=60"
-    return res
+    return fastapi.responses.JSONResponse(req.headers.items())
 
 @app.get("/api/cloudflare")
 async def api_cloudflare(zone_id: str, x_token: typing.Union[str, None] = fastapi.Header()):
@@ -186,7 +191,7 @@ async def api_litey_post(item: LiteYItem, req: fastapi.Request):
         "id": str(time.time_ns()),
         "content": item.content,
         "date": datetime.datetime.now().astimezone(datetime.timezone.utc).isoformat(),
-        "ip": req.client.host
+        "ip": get_ip(req)
     })
 
     return fastapi.responses.PlainTextResponse("OK")
