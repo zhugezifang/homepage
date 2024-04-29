@@ -1,3 +1,38 @@
+-- Vercelのやったほうがいい設定
+
+1. 「Settings→General→Node.js Version」で「18.x」を選択
+2. 「Settings→Functions→Function Region」で「hnd1」を選択
+
+-- 所有物
+
+サービス: ホームページ
+├ リポジトリ: https://github.com/yuukiwww/homepage.git
+├ データベース: MongoDB Atlas
+├ ストレージ: なし
+└ 物理サーバー: Vercel
+
+サービス: 太鼓ウェブ
+├ リポジトリ: https://github.com/yuukiwww/taiko-web.git
+├ データベース: Vultr
+├ データベースリポジトリ: https://github.com/yuukiwww/taiko-web-db.git
+├ ストレージ: Vultr
+└ 物理サーバー: Vultr
+
+ドメイン: yuuk1.tk
+├ レジストラ: Freenom
+├ DNS: Cloudflare
+└ サービス: ホームページ
+
+ドメイン: yuuk1.uk
+├ レジストラ: GoDaddy
+├ DNS: GoDaddy
+└ サービス: ホームページ
+
+ドメイン: taikoapp.uk
+├ レジストラ: Cloudflare
+├ DNS: Cloudflare
+└ サービス: 太鼓ウェブ
+
 -- Cloudflareのやったほうがいい設定
 
 1. 「SSL/TLS→概要」から「フル（厳密）」モードにする。
