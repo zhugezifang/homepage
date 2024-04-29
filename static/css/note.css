@@ -10,10 +10,6 @@
   font-size: 0.5rem;
 }
 
-#note > :nth-child(3) {
-  display: none;
-}
-
 #note > :nth-child(n+4):nth-child(-n+4) {
   margin-right: 4px;
 }

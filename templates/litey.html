@@ -19,9 +19,9 @@
     <div id="note">
       <div>{{ note.ip | ip_to_uid }}</div>
       <div>{{ note.content }}</div>
-      <div id="attachments">{{ note.content }}</div>
-      <code id="date">{{ note.date }}</code>
-      <input type="submit" value="削除" onclick="noteDelete(&quot;{{ note.id | e }}&quot;);">
+      <div id="attachments" data-content="{{ note.content | urlencode() }}"></div>
+      <code id="date" data-date="{{ note.date | urlencode() }}"></code>
+      <input type="submit" value="削除" onclick="noteDelete(this);" data-id="{{ note.id | urlencode() }}" data-preview="{{ note.content | urlencode() }}">
     </div>
     {% endfor %}
   </body>

@@ -20,35 +20,30 @@ function notePost() {
     });
 }
 
-function noteDelete(id) {
-  fetch(`/api/litey/get?id=${encodeURIComponent(id)}`)
+function noteDelete(submit) {
+  const preview = decodeURIComponent(submit.dataset.preview);
+  const id = decodeURIComponent(submit.dataset.id);
+
+  if (!confirm(`本当にこのメッセージを削除しますか？\n${preview}`)) {
+    return;
+  }
+
+  fetch("/api/litey/delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id,
+    }),
+  })
     .then((res) => {
       if (res.ok) {
-        res.json()
-          .then((json) => {
-            if (!confirm(`本当にこのメッセージを削除しますか？\n${json.content}`)) {
-              return;
-            }
-
-            fetch("/api/litey/delete", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                id,
-              }),
-            })
-              .then((res2) => {
-                if (res2.ok) {
-                  alert("削除に成功しました！");
-                } else {
-                  alert("削除に失敗しました。");
-                }
-              });
-          });
+        alert("削除に成功しました！");
+      } else {
+        alert("削除に失敗しました。");
       }
-    })
+    });
 }
 
 function createAttachment(link, proxyLink, mediaType) {
@@ -82,9 +77,7 @@ function createAttachment(link, proxyLink, mediaType) {
 
 addEventListener("load", () => {
   document.querySelectorAll("#attachments").forEach((attachments) => {
-    const content = attachments.textContent;
-    attachments.textContent = undefined;
-    attachments.style["display"] = "block";
+    const content = decodeURIComponent(attachments.dataset.content);
 
     (content.match(/https?:\/\/[^\s]+/g) ?? []).forEach((link) => {
       const proxyLink = `/api/litey/image-proxy?url=${encodeURIComponent(link)}`;
@@ -103,7 +96,6 @@ addEventListener("load", () => {
 
 addEventListener("load", () => {
   document.querySelectorAll("#date").forEach((date) => {
-    const dateStr = date.textContent;
-    date.textContent = new Date(dateStr).toLocaleString();
+    date.textContent = new Date(decodeURIComponent(date.dataset.date)).toLocaleString();
   });
 });
