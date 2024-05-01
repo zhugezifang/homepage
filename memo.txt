@@ -8,13 +8,16 @@
 サービス: ホームページ
 ├ リポジトリ: https://github.com/yuukiwww/homepage.git
 ├ データベース: MongoDB Atlas
+│ ├ リポジトリ: なし
+│ └ 定期バックアップ: なし
 ├ ストレージ: なし
 └ 物理サーバー: Vercel
 
 サービス: 太鼓ウェブ
 ├ リポジトリ: https://github.com/yuukiwww/taiko-web.git
 ├ データベース: Vultr
-├ データベースリポジトリ: https://github.com/yuukiwww/taiko-web-db.git
+│ ├ リポジトリ: https://github.com/yuukiwww/taiko-web-db.git
+│ └ 定期バックアップ: Vultr
 ├ ストレージ: Vultr
 └ 物理サーバー: Vultr
 
@@ -32,6 +35,16 @@
 ├ レジストラ: Cloudflare
 ├ DNS: Cloudflare
 └ サービス: 太鼓ウェブ
+
+ドメイン: forgejo.win
+├ レジストラ: Cloudflare
+├ DNS: Cloudflare
+└ サービス: ホームページ
+
+ドメイン: litey.trade
+├ レジストラ: Cloudflare
+├ DNS: Cloudflare
+└ サービス: ホームページ
 
 -- Cloudflareのやったほうがいい設定
 
