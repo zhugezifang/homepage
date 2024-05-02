@@ -248,7 +248,10 @@ async def api_litey_image_proxy(url: str):
 
 @app.get("/stats")
 async def stats(req: fastapi.Request):
-    return templates.TemplateResponse(req, "stats.html")
+    res = templates.TemplateResponse(req, "stats.html")
+    res.headers["Cache-Control"] = "public, max-age=0, s-maxage=0"
+    res.headers["CDN-Cache-Control"] = "max-age=0"
+    return res
 
 @app.get("/litey")
 async def litey(req: fastapi.Request):
@@ -259,11 +262,17 @@ async def litey(req: fastapi.Request):
         "notes": json
     }
 
-    return templates.TemplateResponse(req, "litey.html", context)
+    res = templates.TemplateResponse(req, "litey.html", context)
+    res.headers["Cache-Control"] = "public, max-age=0, s-maxage=0"
+    res.headers["CDN-Cache-Control"] = "max-age=0"
+    return res
 
 @app.get("/stats-realtime")
 async def stats_realtime(req: fastapi.Request):
-    return templates.TemplateResponse(req, "stats-realtime.html")
+    res = templates.TemplateResponse(req, "stats-realtime.html")
+    res.headers["Cache-Control"] = "public, max-age=0, s-maxage=0"
+    res.headers["CDN-Cache-Control"] = "max-age=0"
+    return res
 
 @app.get("/")
 async def home(req: fastapi.Request):
@@ -272,7 +281,10 @@ async def home(req: fastapi.Request):
         "ua": req.headers.get("User-Agent")
     }
 
-    return templates.TemplateResponse(req, "home.html", context)
+    res = templates.TemplateResponse(req, "home.html", context)
+    res.headers["Cache-Control"] = "public, max-age=0, s-maxage=0"
+    res.headers["CDN-Cache-Control"] = "max-age=0"
+    return res
 
 @app.get("/{ref:path}")
 async def static(ref: str = None):
