@@ -12,7 +12,7 @@ function notePost() {
   })
     .then((res) => {
       if (res.ok) {
-        message.value = "";
+        msg.value = "";
         alert("投稿に成功しました！");
       } else {
         alert("投稿に失敗しました。");
